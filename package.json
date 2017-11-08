@@ -21,7 +21,8 @@
     "bitcoin",
     "litecoin",
     "ether",
-    "ethereum"
+    "ethereum",
+    "kraken"
   ],
   "author": "Graham Haley",
   "license": "ISC",
