@@ -104,7 +104,7 @@ export interface IKrakenClient {
                           data: IPostBody,
                           configOverride?: IKrakenRequestConfig): Promise<IKrakenResponse>;
 
-    signMessage(url: string, postBody: IPostBody, privateKey: string): string;
+    signMessage(path: string, postBody: IPostBody, privateKey: string): string;
 
     upgrade(newAuth: IApiAuth): void;
 }
