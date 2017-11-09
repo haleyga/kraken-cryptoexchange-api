@@ -13,7 +13,7 @@ const axios = axiosDefault.default;
  */
 const defaultConfig = {
     rootUrl: `https://api.kraken.com`,
-    timeout: 5000,
+    timeout: 10000,
     version: 0,
 };
 
@@ -50,8 +50,12 @@ const privateAgentConfig = {
 
 /**
  * The post body shape.
+ *
+ * Nonce and the optional otp parameter are the only knowns.  Other parameters may be passed depending on the
+ * endpoint being called.  This accounts for declaration of string keys with string or number values.
  */
 export interface IPostBody {
+    [key: string]: string | number;
     nonce: number;
     otp?: string;
 }
@@ -132,7 +136,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
      */
     async getPublicEndpoint(endpoint: string,
                             queryParams?: {},
-                            configOverride?: {}): Promise<IKrakenResponse> {
+                            configOverride?: IKrakenRequestConfig): Promise<IKrakenResponse> {
 
         // Construct local config object
         const config = { ...defaultConfig, ...configOverride };
