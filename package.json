@@ -1,6 +1,6 @@
 {
   "name": "kraken-exchange-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Simple typescript interface to the Kraken cryptoexchange.",
   "main": "dist/es6/index.js",
   "types": "dist/es6/index.d.ts",
