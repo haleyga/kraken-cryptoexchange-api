@@ -1,16 +1,17 @@
 {
-  "name": "kraken-api",
+  "name": "kraken-exchange-api",
   "version": "0.0.1",
   "description": "Simple typescript interface to the Kraken cryptoexchange.",
-  "main": "index.js",
+  "main": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "drive": "npm run build && node dist/es6/driver.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rm -rf dist",
+    "test": ""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haleyga/kraken-api.git"
+    "url": "git+https://github.com/haleyga/kraken-exchange-api.git"
   },
   "keywords": [
     "crypto",
@@ -27,9 +28,9 @@
   "author": "Graham Haley",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/haleyga/kraken-api/issues"
+    "url": "https://github.com/haleyga/kraken-exchange-api/issues"
   },
-  "homepage": "https://github.com/haleyga/kraken-api#readme",
+  "homepage": "https://github.com/haleyga/kraken-exchange-api#readme",
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.0.0",
