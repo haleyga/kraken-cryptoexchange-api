@@ -23,7 +23,7 @@ const defaultConfig = {
 const defaultAgentConfig = {
     baseURL: defaultConfig.rootUrl,
     headers: {
-        'User-Agent': `Kraken API Client (kraken-exchange-api node package)`,
+        'User-Agent': `Kraken API Client (kraken-cryptoexchange-api node package)`,
     },
     method : 'GET',
     timeout: defaultConfig.timeout,

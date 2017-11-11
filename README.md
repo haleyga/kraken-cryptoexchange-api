@@ -14,19 +14,19 @@ certain limits.  *It is the responsibility of the user to track rate limits.*
 
 ###### npm
 ```bash
-npm i kraken-exchange-api
+npm i kraken-cryptoexchange-api
 ```
 
 ###### yarn
 ```bash
-yarn add kraken-exchange-api
+yarn add kraken-cryptoexchange-api
 ```
 
 #### Quick Start
 
 ###### TypeScript
 ```typescript
-import { getClient, IKrakenClient } from 'kraken-exchange-api';
+import { getClient, IKrakenClient } from 'kraken-cryptoexchange-api';
 
 const main = async (): Promise<{}> => {
     try {
@@ -49,7 +49,7 @@ main().then(data => console.log(data))
 ###### JavaScript
 *This example shows usage without `async/await`.*
 ```javascript
-const kraken = require('kraken-exchange-api');
+const kraken = require('kraken-cryptoexchange-api');
 
 const client = kraken.getClient({
     publicKey : '', // Your public key
