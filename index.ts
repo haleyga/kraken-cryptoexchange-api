@@ -143,14 +143,14 @@ const getRawAgent = (auth?: IApiAuth): IRawAgent => ({
                             queryParams?: {},
                             configOverride?: IKrakenRequestConfig): Promise<IKrakenResponse> {
 
-        // Construct local config object
+        // Construct local krakenRequestConfig object
         const config = { ...defaultConfig, ...configOverride };
 
         // The uri is a relative path to the publicAgentConfig,baseUrl
         const uri = `/${config.version}/public/${endpoint}?${qs.stringify(queryParams)}`;
 
-        // Construct the actual config to be used
-        const agentConfig = { ...publicAgentConfig, url: uri };
+        // Construct the actual krakenRequestConfig to be used
+        const agentConfig = { ...publicAgentConfig, url: uri, ...config };
 
         // Finally, send the request and return the response
         return Promise.resolve(await axios(agentConfig));
@@ -178,7 +178,7 @@ const getRawAgent = (auth?: IApiAuth): IRawAgent => ({
         // Ensure the user has credentials
         if (!this.isUpgraded()) return Promise.reject(`api keys are required to access private endpoints`);
 
-        // Construct local config object
+        // Construct local krakenRequestConfig object
         const config = { ...defaultConfig, ...configOverride };
 
         // The uri is a relative path to the privateAgentConfig,baseUrl
@@ -191,8 +191,8 @@ const getRawAgent = (auth?: IApiAuth): IRawAgent => ({
             'API-Sign': this.signMessage(uri, data, this.auth.privateKey),
         };
 
-        // Construct the actual config to be used
-        const agentConfig = { ...privateAgentConfig, headers, url: uri, data: qs.stringify(data) };
+        // Construct the actual krakenRequestConfig to be used
+        const agentConfig = { ...privateAgentConfig, headers, url: uri, data: qs.stringify(data), ...config };
 
         // Finally, send the request and return the response
         return Promise.resolve(await axios(agentConfig));
@@ -349,9 +349,10 @@ export interface IKrakenClient {
  * Factory function to get a new Kraken client.
  *
  * @param {IApiAuth} auth
+ * @param requestConfig
  * @returns {IKrakenClient}
  */
-export const getClient = (auth?: IApiAuth): IKrakenClient => ({
+export const getClient = (auth?: IApiAuth, requestConfig: IKrakenRequestConfig = null): IKrakenClient => ({
 
     rawAgent: getRawAgent(auth),
 
@@ -360,7 +361,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
     upgrade(newAuth: IApiAuth): void { this.rawAgent.upgrade(newAuth); },
 
     async getServerTime(): Promise<IKrakenResponse> {
-        return this.rawAgent.getPublicEndpoint('Time');
+        return this.rawAgent.getPublicEndpoint('Time', null, requestConfig);
     },
 
     async getAssetInfo(queryParams?: IAssetsParams): Promise<IKrakenResponse> {
@@ -369,7 +370,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ info, aclass, asset }))(queryParams) :
                        null;
 
-        return this.rawAgent.getPublicEndpoint('Assets', params);
+        return this.rawAgent.getPublicEndpoint('Assets', params, requestConfig);
     },
 
     async getTradableAssetPairs(queryParams?: IAssetPairsParams): Promise<IKrakenResponse> {
@@ -378,49 +379,49 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ info, pair }))(queryParams) :
                        null;
 
-        return this.rawAgent.getPublicEndpoint('AssetPairs', params);
+        return this.rawAgent.getPublicEndpoint('AssetPairs', params, requestConfig);
     },
 
     async getTickerInformation(queryParams: ITickerParams): Promise<IKrakenResponse> {
         const params = (({ pair }) =>
             ({ pair }))(queryParams);
 
-        return this.rawAgent.getPublicEndpoint('Ticker', params);
+        return this.rawAgent.getPublicEndpoint('Ticker', params, requestConfig);
     },
 
     async getOhlcData(queryParams: IOhlcParams): Promise<IKrakenResponse> {
         const params = (({ pair, interval, since }) =>
             ({ pair, interval, since }))(queryParams);
 
-        return this.rawAgent.getPublicEndpoint('OHLC', params);
+        return this.rawAgent.getPublicEndpoint('OHLC', params, requestConfig);
     },
 
     async getOrderBook(queryParams: IDepthParams): Promise<IKrakenResponse> {
         const params = (({ pair, count }) =>
             ({ pair, count }))(queryParams);
 
-        return this.rawAgent.getPublicEndpoint('Depth', params);
+        return this.rawAgent.getPublicEndpoint('Depth', params, requestConfig);
     },
 
     async getRecentTrades(queryParams: ITradesParams): Promise<IKrakenResponse> {
         const params = (({ pair, since }) =>
             ({ pair, since }))(queryParams);
 
-        return this.rawAgent.getPublicEndpoint('Trades', params);
+        return this.rawAgent.getPublicEndpoint('Trades', params, requestConfig);
     },
 
     async getRecentSpreadData(queryParams: ISpreadParams): Promise<IKrakenResponse> {
         const params = (({ pair, since }) =>
             ({ pair, since }))(queryParams);
 
-        return this.rawAgent.getPublicEndpoint('Spread', params);
+        return this.rawAgent.getPublicEndpoint('Spread', params, requestConfig);
     },
 
     async getAccountBalance(): Promise<IKrakenResponse> {
         const nonce  = generateNonce();
         const params = { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('Balance', params);
+        return this.rawAgent.postToPrivateEndpoint('Balance', params, requestConfig);
     },
 
     async getTradeBalance(queryParams?: ITradeBalanceParams): Promise<IKrakenResponse> {
@@ -430,7 +431,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ nonce, aclass, asset }))(queryParams) :
                        { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('TradeBalance', params);
+        return this.rawAgent.postToPrivateEndpoint('TradeBalance', params, requestConfig);
     },
 
     async getOpenOrders(queryParams?: IOpenOrdersParams): Promise<IKrakenResponse> {
@@ -440,7 +441,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ nonce, trades, userref }))(queryParams) :
                        { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('OpenOrders', params);
+        return this.rawAgent.postToPrivateEndpoint('OpenOrders', params, requestConfig);
     },
 
     async getClosedOrders(queryParams?: IClosedOrdersParams): Promise<IKrakenResponse> {
@@ -450,7 +451,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ nonce, trades, userref, start, end, ofs, closetime }))(queryParams) :
                        { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('ClosedOrders', params);
+        return this.rawAgent.postToPrivateEndpoint('ClosedOrders', params, requestConfig);
     },
 
     async queryOrdersInfo(queryParams: IOrdersInfoParams): Promise<IKrakenResponse> {
@@ -460,7 +461,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ nonce, trades, userref, txid }))(queryParams) :
                        { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('QueryOrders', params);
+        return this.rawAgent.postToPrivateEndpoint('QueryOrders', params, requestConfig);
     },
 
     async getTradesHistory(queryParams?: ITradesHistoryParams): Promise<IKrakenResponse> {
@@ -470,7 +471,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ nonce, type, trades, start, end, ofs }))(queryParams) :
                        { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('TradesHistory', params);
+        return this.rawAgent.postToPrivateEndpoint('TradesHistory', params, requestConfig);
     },
 
     async queryTradesInfo(queryParams: ITradesInfoParams): Promise<IKrakenResponse> {
@@ -478,7 +479,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ txid, trades }) =>
             ({ nonce, txid, trades }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('QueryTrades', params);
+        return this.rawAgent.postToPrivateEndpoint('QueryTrades', params, requestConfig);
     },
 
     async getOpenPositions(queryParams: IOpenPositionsParams): Promise<IKrakenResponse> {
@@ -486,7 +487,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ txid, docalcs }) =>
             ({ nonce, txid, docalcs }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('OpenPositions', params);
+        return this.rawAgent.postToPrivateEndpoint('OpenPositions', params, requestConfig);
     },
 
     async getLedgersInfo(queryParams?: ILedgersParams): Promise<IKrakenResponse> {
@@ -496,7 +497,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
                            ({ nonce, aclass, asset, type, start, end, ofs }))(queryParams) :
                        { nonce };
 
-        return this.rawAgent.postToPrivateEndpoint('Ledgers', params);
+        return this.rawAgent.postToPrivateEndpoint('Ledgers', params, requestConfig);
     },
 
     async queryLedgers(queryParams: IQueryLedgersParams): Promise<IKrakenResponse> {
@@ -504,7 +505,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ id }) =>
             ({ nonce, id }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('QueryLedgers', params);
+        return this.rawAgent.postToPrivateEndpoint('QueryLedgers', params, requestConfig);
     },
 
     async getTradeVolume(queryParams?: ITradeVolumeParams): Promise<IKrakenResponse> {
@@ -519,7 +520,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         params['fee-info'] = queryParams['fee-info'];
         //tslint:enable:no-string-literal
 
-        return this.rawAgent.postToPrivateEndpoint('TradeVolume', params);
+        return this.rawAgent.postToPrivateEndpoint('TradeVolume', params, requestConfig);
     },
 
     async addStandardOrder(queryParams: IAddOrderParams): Promise<IKrakenResponse> {
@@ -540,7 +541,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
 
         const params = { ...required, ...optional, ...optionalClose };
 
-        return this.rawAgent.postToPrivateEndpoint('AddOrder', params);
+        return this.rawAgent.postToPrivateEndpoint('AddOrder', params, requestConfig);
     },
 
     async cancelOpenOrder(queryParams: ICancelOpenOrderParams): Promise<IKrakenResponse> {
@@ -548,7 +549,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ txid }) =>
             ({ nonce, txid }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('CancelOrder', params);
+        return this.rawAgent.postToPrivateEndpoint('CancelOrder', params, requestConfig);
     },
 
     async getDepositMethods(queryParams: IDepositMethodsParams): Promise<IKrakenResponse> {
@@ -556,7 +557,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
     },
 
     async getDepositAddresses(queryParams: IDepositAddressesParams): Promise<IKrakenResponse> {
@@ -569,7 +570,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         params['new'] = queryParams['new'];
         //tslint:enable:no-string-literal
 
-        return this.rawAgent.postToPrivateEndpoint('DepositAddresses', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositAddresses', params, requestConfig);
     },
 
     async getStatusOfRecentDeposits(queryParams: IDepositStatusParams): Promise<IKrakenResponse> {
@@ -577,7 +578,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
     },
 
     async getWithdrawalInformation(queryParams: IWithdrawInfoParams): Promise<IKrakenResponse> {
@@ -585,7 +586,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
     },
 
     async withdrawFunds(queryParams: IWithdrawParams): Promise<IKrakenResponse> {
@@ -593,7 +594,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
     },
 
     async getStatusOfRecentWithdrawals(queryParams: IWithdrawStatusParams): Promise<IKrakenResponse> {
@@ -601,7 +602,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
     },
 
     async requestWithdrawalCancellation(queryParams: IWithdrawCancelParams): Promise<IKrakenResponse> {
@@ -609,7 +610,7 @@ export const getClient = (auth?: IApiAuth): IKrakenClient => ({
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params);
+        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
     },
 });
 
