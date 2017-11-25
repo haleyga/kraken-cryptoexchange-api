@@ -67,6 +67,12 @@ client.getAccountBalance()
 
 *Note: the remainder of this README.md will use TypeScript examples.*
 
+## Configuration
+
+This project leverages the [axios](https://github.com/axios/axios) package under the hood.  All request configuration
+is forwarded to the underlying request architecture.  See the [documentation](https://github.com/axios/axios#request-config) for
+more information.
+
 ## API Detail
 
 All endpoints are available via the client.  If authentication keys are provided during client construction, public 
