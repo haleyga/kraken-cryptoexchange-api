@@ -578,7 +578,7 @@ export const getClient = (auth?: IApiAuth, requestConfig: IKrakenRequestConfig =
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
+        return this.rawAgent.postToPrivateEndpoint('DepositStatus', params, requestConfig);
     },
 
     async getWithdrawalInformation(queryParams: IWithdrawInfoParams): Promise<IKrakenResponse> {
@@ -586,7 +586,7 @@ export const getClient = (auth?: IApiAuth, requestConfig: IKrakenRequestConfig =
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
+        return this.rawAgent.postToPrivateEndpoint('WithdrawInfo', params, requestConfig);
     },
 
     async withdrawFunds(queryParams: IWithdrawParams): Promise<IKrakenResponse> {
@@ -594,7 +594,7 @@ export const getClient = (auth?: IApiAuth, requestConfig: IKrakenRequestConfig =
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
+        return this.rawAgent.postToPrivateEndpoint('Withdraw', params, requestConfig);
     },
 
     async getStatusOfRecentWithdrawals(queryParams: IWithdrawStatusParams): Promise<IKrakenResponse> {
@@ -602,7 +602,7 @@ export const getClient = (auth?: IApiAuth, requestConfig: IKrakenRequestConfig =
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
+        return this.rawAgent.postToPrivateEndpoint('WithdrawStatus', params, requestConfig);
     },
 
     async requestWithdrawalCancellation(queryParams: IWithdrawCancelParams): Promise<IKrakenResponse> {
@@ -610,7 +610,7 @@ export const getClient = (auth?: IApiAuth, requestConfig: IKrakenRequestConfig =
         const params = (({ aclass, asset }) =>
             ({ nonce, aclass, asset }))(queryParams);
 
-        return this.rawAgent.postToPrivateEndpoint('DepositMethods', params, requestConfig);
+        return this.rawAgent.postToPrivateEndpoint('WithdrawCancel', params, requestConfig);
     },
 });
 
