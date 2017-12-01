@@ -189,6 +189,7 @@ const getRawAgent = (auth?: IApiAuth): IRawAgent => ({
             ...privateAgentConfig.headers,
             'API-Key' : this.auth.publicKey,
             'API-Sign': this.signMessage(uri, data, this.auth.privateKey),
+            ...config.headers,
         };
 
         // Construct the actual krakenRequestConfig to be used
