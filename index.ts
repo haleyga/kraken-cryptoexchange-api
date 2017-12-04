@@ -184,12 +184,14 @@ const getRawAgent = (auth?: IApiAuth): IRawAgent => ({
         // The uri is a relative path to the privateAgentConfig,baseUrl
         const uri = `/${config.version}/private/${endpoint}`;
 
+        const headersOverride = config ? config.headers : null;
+
         // Add the appropriate POST request headers (API-Key and API-Sign)
         const headers = {
             ...privateAgentConfig.headers,
             'API-Key' : this.auth.publicKey,
             'API-Sign': this.signMessage(uri, data, this.auth.privateKey),
-            ...config.headers,
+            ...headersOverride,
         };
 
         // Construct the actual krakenRequestConfig to be used
